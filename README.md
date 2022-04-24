@@ -7,14 +7,14 @@ TODO: Certain fields may not be visible to the crawler, because they need authen
 ### General
 
 * Categories.csv(id, name): enum none (--), Music&Dancing, Food&Dining, Community&Activism, Outdoor&Adventure, Computers&Technology, Gaming, 
-* Media.csv(id, filename, hash, maybe_create_time)
+* Media.csv(id, filename, file_size, mime, width, height, average color, hash, maybe_create_time)
 * media/$id.data
 * Cities.csv(id, name, country_id, lat, lon, zoom)
 * Countries.csv(id, name)
 
 ### Users
 
-* Users.csv(id, name, website, timezone, media_id, maybe_join_time)
+* Users.csv(id, name, website, timezone, media_id, maybe_join_time, is_deleted)
 * UserCategories.csv(id, user_id, category_id)
 * EventParticipant.csv(id, event_id, user_id, participation_id, maybe_create_time, maybe_update_time)
 * Participation(id, name) enum: Yes, No, Maybe
@@ -31,7 +31,7 @@ TODO: Certain fields may not be visible to the crawler, because they need authen
 
 ### Teams
 
-* Teams.csv(id, slug, name, category_id, city_id, website, timezone, media_id)
+* Teams.csv(id, slug, name, category_id, city_id, website, timezone, media_id, is_deleted)
 * TeamMember.csv(id, team_id, user_id, role_id, maybe_join_time)
 * Roles.csv(id, name): enum none, Moderator, Administrator
 * teams-description/$id.html: description
@@ -39,7 +39,7 @@ TODO: Certain fields may not be visible to the crawler, because they need authen
 
 ### Events
 
-* Events.csv(id, team_id, user_id, name, start_time, end_time, maybe_event_series_id, website, announce_url, attendee_limit, have_comments, have_photos, have_talks, have_sponsors, place_id)
+* Events.csv(id, team_id, user_id, name, start_time, end_time, maybe_event_series_id, website, announce_url, attendee_limit, have_comments, have_photos, have_talks, have_sponsors, place_id, is_deleted)
 * events/$id.html: summary
 * EventPhoto.csv(id, event_id, photo_id)
 * Photo.csv(id, media_id, title)
@@ -100,6 +100,7 @@ Long form description, title, link, place, media or combination thereof taken to
 * Maybe guilty if event is attended by only 1 user
 * Maybe guilty if longer than 4 hours
 * Maybe guilty if start time not at least 1 day in the future
+* Maybe guilty if starts at an odd hour (e.g., midnight, noon)
 * Guilty if commented by guilty user
 * Guilty if guilty user attends
 * Guilty if longer than 1 week
@@ -185,7 +186,8 @@ Estimate various properties that are not presented on the public website based o
 
 * report new guilty entities
 * send out in daily digest email (e.g., cron echo)
-* generate RSS
+* generate RSS of entities to review as soon as possible
+* generate RSS of reviewed entities found to be definitely guilty in batches
 * send in via a Matrix bot immediately to a review room
 * verify each hint in the review room manually, add review result to overrides, delete false alarms
 * collect and forward links to reviewed results daily or weekly to project owner: perhaps include a few words of preview if it has no sensitive keywords
