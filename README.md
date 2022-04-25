@@ -16,7 +16,7 @@ TODO: Certain fields may not be visible to the crawler, because they need authen
 
 * Users.csv(id, name, website, timezone, media_id, maybe_join_time, is_deleted)
 * UserCategories.csv(id, user_id, category_id)
-* EventParticipant.csv(id, event_id, user_id, participation_id, maybe_create_time, maybe_update_time)
+* EventParticipant.csv(id, event_id, user_id, participation_id, is_host, maybe_create_time, maybe_update_time)
 * Participation(id, name) enum: Yes, No, Maybe
 
 ### Talks
@@ -39,16 +39,18 @@ TODO: Certain fields may not be visible to the crawler, because they need authen
 
 ### Events
 
-* Events.csv(id, team_id, user_id, name, start_time, end_time, maybe_event_series_id, website, announce_url, attendee_limit, have_comments, have_photos, have_talks, have_sponsors, place_id, is_deleted)
+* Events.csv(id, slug, team_id, user_id, name, start_time, end_time, maybe_event_series_id, website, announce_url, attendee_limit, have_comments, have_photos, have_talks, have_sponsors, place_id, is_deleted)
 * events/$id.html: summary
 * EventPhoto.csv(id, event_id, photo_id)
-* Photo.csv(id, media_id, title)
+* Photo.csv(id, thumb_media_id, full_media_id, title)
 * photo/$id.html: caption
 * Places.csv(id, name, address, city_id, website, google_maps_url)
-* EventSeries.csv(id, team_id, user_id, name, start_time, end_time, repetition, attendee_limit, place_id)
+* EventSeries.csv(id, slug, team_id, user_id, name, start_time, end_time, repetition, attendee_limit, place_id)
 * event-series/$id.html: summary
 * Comment.csv(id, event_id, user_id, create_time, update_time, text)
 * EventUpdates.csv(id, event_id, maybe_update_time)
+* Sponsors.csv(id, name, website, media_id)
+* SponseredEvents.csv(id, sponsor_id, event_id)
 
 ## Heuristics
 
@@ -188,6 +190,7 @@ Estimate various properties that are not presented on the public website based o
 * send out in daily digest email (e.g., cron echo)
 * generate RSS of entities to review as soon as possible
 * generate RSS of reviewed entities found to be definitely guilty in batches
+* option to trust and follow other instances of this bot: mirror results (follow RSS) and ensure that polling is load balanced with failover
 * send in via a Matrix bot immediately to a review room
 * verify each hint in the review room manually, add review result to overrides, delete false alarms
-* collect and forward links to reviewed results daily or weekly to project owner: perhaps include a few words of preview if it has no sensitive keywords
+* collect and forward links to reviewed results daily or weekly to upstream project owner: perhaps include a few words of preview if it contains no sensitive keywords
