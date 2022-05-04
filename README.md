@@ -89,6 +89,8 @@ Long form description, title, link, place, media or combination thereof taken to
 * Maybe guilty if it has events more than 4 times within the next or previous 28 days
 * Maybe guilty if it has events more than 2 times within the next or previous 7 days
 * Maybe guilty if it never had an event with a place
+* Maybe guilty if name contains a full URI with scheme
+* Guilty if name contains email address
 * Guilty if guilty member joined
 * Guilty if contains any guilty moderator or admin
 
@@ -103,6 +105,8 @@ Long form description, title, link, place, media or combination thereof taken to
 * Maybe guilty if longer than 4 hours
 * Maybe guilty if start time not at least 1 day in the future
 * Maybe guilty if starts at an odd hour (e.g., midnight, noon)
+* Maybe guilty if name contains a full URI with scheme
+* Guilty if name contains email address
 * Guilty if commented by guilty user
 * Guilty if guilty user attends
 * Guilty if longer than 1 week
@@ -116,6 +120,8 @@ Long form description, title, link, place, media or combination thereof taken to
 * Innocent if participated events of multiple teams
 * Innocent if commented events of multiple teams
 * Maybe guilty if created new team and new event within 1 day of registration
+* Maybe guilty if name contains a full URI with scheme
+* Guilty if name contains email address
 
 ## Polling
 

@@ -7,7 +7,7 @@ mkdir -p "$VAR"
 curl2() {
     case "$1" in
         */events/all/)
-            local HTML="$VAR/all.html"
+            local HTML="$VAR/all-$DEBUG.html"
             ;;
         */events/*/0/)
             local ID="`echo "$1" | sed -r "s~^.*/([0-9]+)/[^/]+/$~\1~"`"
@@ -499,7 +499,7 @@ get_team_soup() {
     N
     s~\s*</div>\s*</div>~~
     T event
-    s~^([^\n]*)\n\s*<div class=\"col\">(None|([^<>]+), ([^<>,]+))</div>\s*<div class=\"col\">([^<>]+)~\1\t\3\t\4\t\5~
+    s~^([^\n]*)\n\s*<div class=\"col\">(None|([^<>]+), ([^<>,]+))</div>\s*<div class=\"col\">([^<>]+)~event\t\1\t\3\t\4\t\5~
     b p
     :not_event
 
