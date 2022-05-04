@@ -14,7 +14,8 @@ main() {
     NOW="`date +%s`"
     local AGE="$((NOW-LASTRUN))"
     if ! [ "$AGE" -lt 900 ] || [ -n "$DEBUG" ]; then
-        get_new_events
+        get_new_events |
+        classify_events
     fi
 }
 

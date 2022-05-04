@@ -544,6 +544,45 @@ get_file_time() {
     cut -d " " -f 5
 }
 
+classify_events() {
+    SPAM="$VAR/new-events-spam.csv"
+    REVIEW="$VAR/new-events-review.csv"
+    HAM="$VAR/new-events-ham.csv"
+
+    local SPAMPAT="$VAR/pattern-team-spam.csv"
+    local HAMPAT="$VAR/pattern-team-ham.csv"
+    local TMP="$VAR/tmp-new-events.csv"
+
+    permute_event_cols "$@" |
+    tee "$TMP" |
+    grep -Ff "$SPAMPAT" - > "$SPAM"
+
+    grep -vFf "$SPAMPAT" "$TMP" |
+    grep -Ff "$HAMPAT" - > "$HAM"
+
+    grep -vFf "$SPAMPAT" -f "$HAMPAT" "$TMP" |
+    classify_events_heuristically
+
+    rm "$TMP"
+}
+
+classify_events_heuristically() {
+    local TMP="$VAR/tmp-event.csv"
+
+    local EVENTID
+    cut -f 1 |
+    while read EVENTID; do
+        {
+            printf "id\t%s\n" "$EVENTID"
+            get_event_page "$EVENTID"
+        } >> "$REVIEW"
+    done
+}
+
+permute_event_cols() {
+  sed -nr "s~^(([^\t]*\t){4})(([^\t]*\t){4})([^\t]*\t)(.*)$~\1\5\3\6~; T e; p; :e" "$@"
+}
+
 run_tests() {
     test_melded_mti
 }
