@@ -6,8 +6,6 @@ DEBUG=1
 for ID in 2965 18440 18431; do
   echo "=$ID"
 
-  curl2 "https://$INSTANCE/events/$ID/0/" |
-  get_event_soup |
-  event_soup2csv
+  get_event_page "$ID"
 done |
 tee "cache/log-event.txt"

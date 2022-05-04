@@ -229,14 +229,13 @@ get_event_soup() {
 
         s~^\s*<meta property=\"og:description\"\s+content=\"~summary_md\t~
         T not_md_summary
-        N
         :md_summary
+        s~\" />$~~
+        t p
         N
         s~\n~<br>~g
         T p
-        s~\" />$~~
-        T md_summary
-        b p
+        b md_summary
         :not_md_summary
 
         s~^\s*<p class=\"text-muted\">Hosted by <a href=\"/([^/\"]+)/\">([^<>]*)</a></p>$~team_slug\t\1\nteam_name\t\2~
