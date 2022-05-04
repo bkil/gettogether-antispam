@@ -47,6 +47,8 @@ get_new_events() {
     local ALLMTIP="$VAR/all-mti.csv"
     local ALLMTI="$VAR/all-mti-new.csv"
     local DELISTED="$VAR/delisted.csv.gz"
+    ALLZPREV="$VAR/all.csv.gz"
+    ALLZ="$VAR/all-new.csv.gz"
 
     get_all_events
 
@@ -59,6 +61,7 @@ get_new_events() {
         gzip >> "$DELISTED"
     else
         cat > "$ALLMTI"
+        mv "$ALLZ" "$ALLZPREV"
     fi
     mv "$ALLMTI" "$ALLMTIP"
 }

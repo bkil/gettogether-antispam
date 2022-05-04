@@ -10,16 +10,11 @@ main() {
         DEBUG="1"
     fi
 
-    ALLPREV="$VAR/all.csv.gz"
-    ALLZ="$VAR/all-new.csv.gz"
-    mkdir -p "$VAR/events"
-
     local LASTRUN="`get_file_time "$ALLPREV"`"
     NOW="`date +%s`"
     local AGE="$((NOW-LASTRUN))"
     if ! [ "$AGE" -lt 900 ] || [ -n "$DEBUG" ]; then
         get_new_events
-        mv "$ALLZ" "$ALLPREV"
     fi
 }
 
