@@ -10,4 +10,4 @@ for ID in 2965 18440 18431; do
   get_event_soup |
   event_soup2csv
 done |
-tee "cache/log.txt"
+tee "cache/log-event.txt"

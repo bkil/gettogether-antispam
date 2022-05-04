@@ -2,13 +2,14 @@
 
 INSTANCE="gettogether.community"
 VAR="cache"
+mkdir -p "$VAR"
 
 curl2() {
     case "$1" in
-        */all/)
+        */events/all/)
             local HTML="$VAR/all.html"
             ;;
-        *)
+        */events/*/0/)
             local ID="`echo "$1" | sed -r "s~^.*/([0-9]+)/[^/]+/$~\1~"`"
             local HTML="$VAR/event-$ID.html"
     esac
@@ -16,6 +17,12 @@ curl2() {
         NOW="`get_file_time "$HTML"`"
         cat "$HTML"
         return
+    fi
+
+    if [ -n "$CURL2SLEEP" ]; then
+      sleep 1
+    else
+      CURL2SLEEP="1"
     fi
 
     curl \
@@ -29,8 +36,6 @@ curl2() {
     else
         cat
     fi
-
-    sleep 1
 }
 
 get_new_events() {
@@ -282,7 +287,7 @@ get_event_soup() {
         b p
         :not_comment_profile
 
-        s~^\s*<div class=\"col-3\" width=\"120px\"><b>Repeats:</b></div><div class=\"col-9\"><a href=\"/series/([0-9]+)/([^\"]*)/\">~series_id\t\1\nseries_slug\t\2\nseries_repeatition\t~
+        s~^\s*<div class=\"col-3\" width=\"120px\"><b>Repeats:</b></div><div class=\"col-9\"><a href=\"/series/([0-9]+)/([^\"]*)/\">~series_id\t\1\nseries_slug\t\2\nseries_repetition\t~
         T not_series
         :series_loop
         s~\s*</a>$~~

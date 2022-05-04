@@ -7,7 +7,7 @@ TODO: Certain fields may not be visible to the crawler, because they need authen
 ### General
 
 * Categories.csv(id, name): enum none (--), Music&Dancing, Food&Dining, Community&Activism, Outdoor&Adventure, Computers&Technology, Gaming, 
-* Media.csv(id, filename, file_size, mime, width, height, average color, hash, maybe_create_time)
+* Media.csv(id=url, filename, file_size, mime, width, height, average color, hash, maybe_create_time)
 * media/$id.data
 * Cities.csv(id, name, country_id, lat, lon, zoom)
 * Countries.csv(id, name)
