@@ -12,7 +12,12 @@ curl2() {
         */events/*/0/)
             local ID="`echo "$1" | sed -r "s~^.*/([0-9]+)/[^/]+/$~\1~"`"
             local HTML="$VAR/event-$ID.html"
+            ;;
+        http*/*/*/)
+            local SLUG="`echo "$1" | sed -r "s~^.*/([^/]+)/$~\1~"`"
+            local HTML="$VAR/team-$SLUG.html"
     esac
+
     if [ -n "$DEBUG" ] && [ -e "$HTML" ]; then
         NOW="`get_file_time "$HTML"`"
         cat "$HTML"
@@ -454,6 +459,66 @@ event_soup2csv() {
         sponsor_name = "";
     }
     '
+}
+
+get_team_soup() {
+  sed "s~\r~~g" "$@" |
+  sed -nr "
+    s~^\s*<h2 class=\"team-title\">\s*(\S[^<>]*)</h2>$~name\t\1~
+    t p
+
+    s~^\s*<img class=\"card-img-top\" src=\"([^\"]*)\".*$~banner_path\t\1~
+    t p
+
+    s~^\s*<a href=\"/([^/<>\"]+)/\" class=\"btn btn-default btn-sm\">Summary</a>$~slug\t\1~
+    t p
+
+    s~^\s*<a href=\"/team/([0-9]+)/events\.ics\".*$~id\t\1~
+    t p
+
+    s~^\s*<div class=\"col-md-9 gt-usertext\"><p>~summary_html\t~
+    T not_html_summary
+    :html_summary
+    N
+    s~\n~~
+    T p
+    s~</p></div>$~~
+    T html_summary
+    b p
+    :not_html_summary
+
+    s~^\s*<div class=\"col-md-3\"><b>Website:</b></div><div class=\"col-md-6\"><a href=\"([^\"]+)\".*$~website\t\1~
+    t p
+
+    s~^\s*<div class=\"col-md-3\"><b>City:</b></div><div class=\"col-md-6\"><a href=\"/[?]city=([0-9]+)\">([^,<>]*)(, ([^<>]*))?</a></div>$~city_id\t\1\ncity_name\t\2\ncity_country\t\4~
+    t p
+
+    s~^\s*<div class=\"col\"><a href=\"/events/([0-9]+)/([^/]+)/\">([^<>]+)</a></div>~\1\t\2\t\3~
+    T not_event
+    :event
+    N
+    s~\s*</div>\s*</div>~~
+    T event
+    s~^([^\n]*)\n\s*<div class=\"col\">(None|([^<>]+), ([^<>,]+))</div>\s*<div class=\"col\">([^<>]+)~\1\t\3\t\4\t\5~
+    b p
+    :not_event
+
+    s~^\s*<img class=\"mr-1 gt-profile-avatar\" src=\"([^\"]+)\"[^>]*>~\1~
+    T not_member
+    :member
+    N
+    s~\s*</div>\s*</div>~~
+    T member
+    s~^([^\n]*)\n.*<h6 class=\"mt-0 mb-0\"><a href=\"/profile/([0-9]+)/\" title=\"'s profile\">([^<>]+)</a></h6>(\s*<small class=\"text-muted\">([^<>]+)</small>)?$~member\t\1\t\2\t\3\t\5~
+    s~\n~~g
+    b p
+    :not_member
+
+    b e
+    :p
+    p
+    :e
+  "
 }
 
 get_file_time() {
