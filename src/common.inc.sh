@@ -47,6 +47,7 @@ get_new_events() {
     local ALLMTIP="$VAR/all-mti.csv"
     local ALLMTI="$VAR/all-mti-new.csv"
     local DELISTED="$VAR/delisted.csv.gz"
+    local TOLIST="$VAR/tolist.tmp.csv"
     ALLZPREV="$VAR/all.csv.gz"
     ALLZ="$VAR/all-new.csv.gz"
 
@@ -57,13 +58,25 @@ get_new_events() {
     if [ -f "$ALLMTIP" ]; then
         melded_mti "$NOW" "$ALLMTIP" |
         tee "$ALLMTI" |
-        sed -n "s~^-~~; T e; p; :e" |
+        sed -nr "s~^-([0-9]+\t)[^\t]*\t(([^\t]*)\t)?([0-9]+)$~\1\3\t\4~; T e; p; :e" > "$TOLIST"
+
+        mv "$ALLMTI" "$ALLMTIP"
+
+        zcat "$ALLZPREV" |
+        join -t "`printf "\t"`" "$TOLIST" - |
         gzip >> "$DELISTED"
+
+        mv "$ALLZ" "$ALLZPREV"
+
+        sed -nr "s~^([0-9]+\t)[^\t]*\t(([^\t]*)\t)?(${NOW})$~\1\3\t\4~; T e; p; :e" < "$ALLMTIP" > "$TOLIST"
+        zcat "$ALLZPREV" |
+        join -t "`printf "\t"`" "$TOLIST" -
+
+        rm "$TOLIST"
     else
-        cat > "$ALLMTI"
+        cat > "$ALLMTIP"
         mv "$ALLZ" "$ALLZPREV"
     fi
-    mv "$ALLMTI" "$ALLMTIP"
 }
 
 melded_mti() {
