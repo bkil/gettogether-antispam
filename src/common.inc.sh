@@ -51,7 +51,7 @@ get_new_events() {
     get_all_events
 
     zcat "$ALLZ" |
-    sed -nr "s~^/events/([0-9]+)/[^\t]*\t([0-9]+)\t.*$~\1\t\2\t${NOW}~; T e; p; :e" |
+    sed -nr "s~^([0-9]+\t[0-9]+\t).*$~\1${NOW}~; T e; p; :e" |
     if [ -f "$ALLMTIP" ]; then
         melded_mti "$NOW" "$ALLMTIP" |
         tee "$ALLMTI" |
@@ -105,11 +105,11 @@ get_all_events() {
 # all event details listed in last poll
 # all event ID, multiplicity, timestamp in last poll
 # all delisted event details ever
-# all team names/covers ever
+# all team id, name, cover ever
 
 get_all_events_soup() {
     sed -nr "
-        s~^\s*<a href=\"(/events/[^\"]+)\".*$~event_url\t\1~
+        s~^\s*<a href=\"/events/([^/\"]+)/([^/\"]+)/\".*$~event_id\t\1\nevent_slug\t\2~
         t p
 
         s~^\s*<img class=\"card-img-top\" src=\"([^\"]+)\" alt=\"([^\"]*)\".*$~team_image_url\t\1\nevent_name\t\2~
@@ -131,8 +131,10 @@ get_all_events_soup() {
 events_soup2csv() {
     awk --field-separator="`printf "\t"`" '
     {
-        if ($1 == "event_url") {
-            event_url = $2;
+        if ($1 == "event_id") {
+            event_id = $2;
+        } else if ($1 == "event_slug") {
+            event_slug = $2;
         } else if ($1 == "team_image_url") {
             team_image_url = $2;
         } else if ($1 == "event_name") {
@@ -152,12 +154,13 @@ events_soup2csv() {
     }
 
     function save() {
-        if (event_url != "") {
-            printf("%s\t%s\t%s\t%s\t%s\t%s\n",
-                event_url, team_image_url, event_name,
+        if (event_id != "") {
+            printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+                event_id, event_slug, team_image_url, event_name,
                 team_name, start_time, place_name);
         }
-        event_url = "";
+        event_id = "";
+        event_slug = "";
         team_image_url = "";
         event_name = "";
         team_name = "";
