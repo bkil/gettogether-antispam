@@ -69,7 +69,7 @@ TODO: Certain fields may not be visible to the crawler, because they need authen
 
 ### Content
 
-Long form description, title, link, place, media or combination thereof taken together.
+Long form description, title, link, domain, place, media or combination thereof taken together.
 
 * Be advised that guilty actors may also copy innocent content to dilute their signature
 * Mark all links, media and places of definitely innocent entities as definitely innocent
@@ -121,7 +121,12 @@ Long form description, title, link, place, media or combination thereof taken to
 * Innocent if commented events of multiple teams
 * Maybe guilty if created new team and new event within 1 day of registration
 * Maybe guilty if name contains a full URI with scheme
+* Maybe guilty if name contains more than 3 words or if it is more than 20 characters long
 * Guilty if name contains email address
+
+### Place reputation
+
+* Maybe guilty if the address does not match the city
 
 ## Polling
 
