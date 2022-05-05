@@ -548,9 +548,10 @@ classify_events() {
     SPAM="$VAR/new-events-spam.csv"
     REVIEW="$VAR/new-events-review.csv"
     HAM="$VAR/new-events-ham.csv"
+    SPAMPAT="$VAR/pattern-team-spam.csv"
+    HAMPAT="$VAR/pattern-team-ham.csv"
+    touch "$SPAMPAT" "$HAMPAT"
 
-    local SPAMPAT="$VAR/pattern-team-spam.csv"
-    local HAMPAT="$VAR/pattern-team-ham.csv"
     local TMP="$VAR/tmp-new-events.csv"
 
     permute_event_cols "$@" |
@@ -567,16 +568,78 @@ classify_events() {
 }
 
 classify_events_heuristically() {
-    local TMP="$VAR/tmp-event.csv"
+  local TMP="$VAR/tmp-event.csv"
 
-    local EVENTID
-    cut -f 1 |
-    while read EVENTID; do
+  local EVENTID
+  TAB="`printf "\t"`"
+
+  while IFS="$TAB" read EVENTID X; do
+    local LINE="`printf "%s\t%s" "$EVENTID" "$X"`"
+
+    get_event_page "$EVENTID" |
+    tee "$TMP" |
+    classify_whole_event_heuristically |
+    {
+      read VERDICT
+      if [ "$VERDICT" = "spam" ]; then
+        echo "$LINE" >> "$SPAM"
+        mark_spammer "$LINE"
+      else
         {
-            printf "id\t%s\n" "$EVENTID"
-            get_event_page "$EVENTID"
+          printf "id\t%s\n" "$EVENTID"
+          cat "$TMP"
         } >> "$REVIEW"
-    done
+      fi
+    }
+  done
+
+  rm "$TMP" 2>/dev/null
+}
+
+mark_spammer() {
+  echo make spammer "$1" >&2 #DEBUG
+  echo "$1" |
+  get_uniq_part_for_mark >> "$SPAMPAT"
+}
+
+get_uniq_part_for_mark() {
+  sed -rn "
+    s~^([^\t]*\t){5}(/media/[^\t]*\t).*$~\t\2~
+    t p
+    s~^.*(, [^,]+(\t[^\t]*){5})$~\1~
+    T e
+
+    :p
+    p
+    :e
+  "
+}
+
+classify_whole_event_heuristically() {
+  awk --field-separator="$TAB" -vOFS="\t" '
+    {
+      if ($1 == "start_time") {
+        start_time = $2;
+      } else if ($1 == "end_time") {
+        end_time = $2;
+      }
+    }
+
+    function get_date_sec(date) {
+      ("date -d " date " +%s" ) | getline x
+      return x;
+    }
+
+    END {
+      if ((start_time != "") && (end_time != "")) {
+        start_sec = get_date_sec(start_time);
+        end_sec = get_date_sec(end_time);
+        if (end_sec - start_sec > 24 * 3600) {
+          print "spam"
+        }
+      }
+    }
+  '
 }
 
 permute_event_cols() {
