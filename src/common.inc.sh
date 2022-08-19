@@ -145,7 +145,7 @@ get_all_events_soup() {
 }
 
 events_soup2csv() {
-    awk --field-separator="`printf "\t"`" '
+    awk -F"`printf "\t"`" '
     {
         if ($1 == "event_id") {
             event_id = $2;
@@ -329,7 +329,7 @@ get_event_soup() {
 }
 
 event_soup2csv() {
-    awk --field-separator="`printf "\t"`" -vOFS="\t" '
+    awk -F"`printf "\t"`" -vOFS="\t" '
     {
         if ($1 == "attendee_avatar") {
             save_attendee();
@@ -616,7 +616,7 @@ get_uniq_part_for_mark() {
 }
 
 classify_whole_event_heuristically() {
-  awk --field-separator="$TAB" -vOFS="\t" '
+  awk -F"$TAB" -vOFS="\t" '
     {
       if ($1 == "start_time") {
         start_time = $2;
